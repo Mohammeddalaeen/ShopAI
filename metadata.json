@@ -1,0 +1,6 @@
+{
+  "name": "SmartShop AI",
+  "description": "A crowdsourced shopping assistant that extracts items from receipts to help you find the best prices and track your budget.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

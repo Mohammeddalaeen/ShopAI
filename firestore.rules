@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+             (request.auth.token.email.lower() == "mohammed.dalaeen@gmail.com" ||
+              request.auth.token.email == "Mohammed.dalaeen@gmail.com");
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+
+    function isDocOwner(data) {
+      return isSignedIn() && (request.auth.uid == data.userId || isAdmin());
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+    }
+
+    // Connectivity Health Check
+    match /_health/{docId} {
+      allow get: if true;
+    }
+
+    // Invoices
+    match /invoices/{invoiceId} {
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn();
+      allow update, delete: if isDocOwner(resource.data);
+    }
+
+    // Items (Global price comparisons for signed-in users)
+    match /items/{itemId} {
+      allow list: if isSignedIn();
+      allow get: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isDocOwner(resource.data);
+    }
+
+    // Budgets
+    match /budgets/{budgetId} {
+      allow list, get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Shopping List / Favorites
+    match /shopping_list/{itemId} {
+      allow list, get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Store Selections (Tracking popular stores)
+    match /store_selections/{selectionId} {
+      allow list, get: if isAdmin();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin();
+      allow update: if false; 
+    }
+  }
+}

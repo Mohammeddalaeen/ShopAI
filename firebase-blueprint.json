@@ -1,0 +1,122 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account information and budget settings",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "budgetLimit": { "type": "number" },
+        "currency": { "type": "string" },
+        "points": { "type": "integer", "description": "Compensated points based on items scanned" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Invoice": {
+      "title": "Shopping Invoice",
+      "description": "Metadata for a scanned receipt",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "storeName": { "type": "string" },
+        "storeAddress": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "visitTime": { "type": "string", "description": "HH:mm format" },
+        "total": { "type": "number" },
+        "itemsCount": { "type": "integer" },
+        "processed": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "storeName", "date", "total"]
+    },
+    "InvoiceItem": {
+      "title": "Invoice Item",
+      "description": "Individual items extracted from an invoice",
+      "type": "object",
+      "properties": {
+        "invoiceId": { "type": "string" },
+        "userId": { "type": "string" },
+        "storeName": { "type": "string" },
+        "name": { "type": "string" },
+        "brand": { "type": "string" },
+        "size": { "type": "string" },
+        "category": { "type": "string" },
+        "price": { "type": "number" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "visitTime": { "type": "string", "description": "HH:mm format" },
+        "subcategory": { "type": "string" }
+      },
+      "required": ["invoiceId", "userId", "name", "price"]
+    },
+    "ShoppingListItem": {
+      "title": "Shopping List Item",
+      "description": "User's favorite or planned shopping item",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "brand": { "type": "string" },
+        "size": { "type": "string" },
+        "category": { "type": "string" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name"]
+    },
+    "Budget": {
+      "title": "Category Budget",
+      "description": "Monthly budget for a specific category",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "category": { "type": "string" },
+        "limit": { "type": "number" },
+        "month": { "type": "string" }
+      },
+      "required": ["userId", "category", "limit", "month"]
+    },
+    "StoreSelection": {
+      "title": "Store Selection Tracking",
+      "description": "Records which store a user selected during planning",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "storeName": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "itemsCount": { "type": "integer" },
+        "totalValue": { "type": "number" }
+      },
+      "required": ["userId", "storeName", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User documents"
+    },
+    "/invoices/{invoiceId}": {
+      "schema": "Invoice",
+      "description": "Scanned invoices"
+    },
+    "/items/{itemId}": {
+      "schema": "InvoiceItem",
+      "description": "Individual items for price comparison"
+    },
+    "/budgets/{budgetId}": {
+      "schema": "Budget",
+      "description": "User budgets per category"
+    },
+    "/shopping_list/{itemId}": {
+      "schema": "ShoppingListItem",
+      "description": "User shopping list items"
+    },
+    "/store_selections/{selectionId}": {
+      "schema": "StoreSelection",
+      "description": "Tracking store preferences"
+    }
+  }
+}
